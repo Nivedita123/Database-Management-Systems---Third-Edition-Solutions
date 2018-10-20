@@ -25,6 +25,7 @@ Explain the difference between external, internal, and conceptual schemas. How a
 
 ### `Answer`
 
+***
 ### Exercise 1.5
 What are the responsibilities of a DBA? If we assume that the DBA is never interested in running his or her own queries, does the DBA still need to understand query optimization? Why?
 
