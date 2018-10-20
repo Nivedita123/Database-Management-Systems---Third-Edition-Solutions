@@ -5,6 +5,6 @@
 
 
 This reposiorty is built to collect the answers of Database Management Systems Third Edition.
-If you see that an answer is inocrrect/missing and want to contribute please submit a PR.
+If you find an incorrect or missing answer and want to contribute please feel free to submit a PR.
 
 
