@@ -1,1 +1,1 @@
-# Database Management Systems - Third Edition Solutions
+# Database Management Systems - Chapter 7 Solutions
