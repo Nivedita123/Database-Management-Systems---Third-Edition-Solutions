@@ -7,9 +7,8 @@
 This repository is built to collect the answers of Database Management Systems Third Edition.
 
 
-
-If you find an incorrect or missing answer and want to contribute please feel free to submit a PR. 
-
+##### Contributing:
+If you find an incorrect or missing question/answer or even a typo and want to contribute please feel free to submit a PR. 
 
 
 ##### Note: 
