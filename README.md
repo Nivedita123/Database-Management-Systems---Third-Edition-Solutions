@@ -5,6 +5,14 @@
 
 
 This repository is built to collect the answers of Database Management Systems Third Edition.
-If you find an incorrect or missing answer and want to contribute please feel free to submit a PR.
+
+
+
+If you find an incorrect or missing answer and want to contribute please feel free to submit a PR. 
+
+
+
+##### Note: 
+Some answers are taken from - http://pages.cs.wisc.edu/~dbbook/openAccess/thirdEdition/solutions/ans3ed-oddonly.pdf
 
 
