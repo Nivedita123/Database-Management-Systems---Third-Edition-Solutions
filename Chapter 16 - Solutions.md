@@ -16,13 +16,13 @@ objects is fixed and only the values of objects can be changed?
 ***
 
 ### Exercise 16.2 
-Consider the following actions taken by transaction 1'1 on database objects
+Consider the following actions taken by transaction T1 on database objects
 X and Y:
 R(X), W(X),R(Y), W(Y)
-1. Give an example of another transaction 1'2 that, if run concurrently to transaction l'
-without some form of concurrency control, could interfere with 1'1.
+1. Give an example of another transaction T2 that, if run concurrently to transaction T
+without some form of concurrency control, could interfere with T1.
 2. Explain how the use of Strict 2PL would prevent interference between the two transactions.
-:1. Strict 2PL is lIsed in many database systems. Give two reasons for its popularity.
+3. Strict 2PL is used in many database systems. Give two reasons for its popularity.
 
 #### `Answer`
 
@@ -42,8 +42,36 @@ that results in a write-write conflict.
 
 #### `Answer`
 
-***
+1. Write-read conflict (Reading uncommited data or Dirty Read) -   
+T1 R(X)  
+T1 R(Y)  
+T1 W(X)  
+T2 R(X) - Dirty Read  
+...  
 
+2. Read-Write Conflict (Unrepeatable reads) -  
+T1 R(X)  
+T1 R(Y)  
+T2 R(X)
+T2 R(Y)  
+T1 W(X)  
+...  
+Now T2 will get unrepeatable read.  
+
+3. Write-Write conflict (Overwriitng uncommited data) -  
+T1 R(X)  
+T1 R(Y)  
+T2 R(X)  
+T1 W(X)  - Step 4
+T2 R(Y)  
+T2 W(X) - Write-Write conflict  
+...  
+
+4. Write-read conflict - T2 will not get a Shared lock on X, untill T1 commits.  
+Read-Write Conflict - T1 will not get Exclusive lock on X untill T2 commits.  
+Write-Write conflict - T1 will not get Exclusive lock on X in Step 4, unitll T2 commits.  
+
+***
 ### Exercise 16.4 
 We call a transaction that only reads database object a read-only transaction,
 otherwise the transaction is called a read-write transaction. Give brief answers to the
@@ -57,6 +85,15 @@ is increased?
 
 #### `Answer`
 
+1. Lock thrashing occurs when a large number of active transactions get blocked while competing for locks.
+2. Number of transactions waiting for locks , increases.  
+3. No impact, multiple transactions can acquire Shared locks simultaneously.
+4. Throughput can be increased by  -
+   - Lock the smallest size objects possible.
+   - Reduce the time for which a transaction holds locks.
+   - Reduce number of hotspots (Objects that are frequently accessed and modified).
+
+
 ***
 
 ### Exercise 16.5 
@@ -66,9 +103,9 @@ that increments an object need not know the value of the object; increment and d
 are versions of blind writes. In addition to shared and exclusive locks, two special locks are
 supported: An object must be locked in I mode before incrementing it and locked in D mode
 before decrementing it. An I lock is compatible with another I or D lock on the same object,
-but not with 5 and X locks.
+but not with S and X locks.
 1. Illustrate how the use of I and D locks can increase concurrency. (Show a schedule
-allowed by Strict 2PL that only uses 5 and X locks. Explain how the use of I and D
+allowed by Strict 2PL that only uses S and X locks. Explain how the use of I and D
 locks can allow more actions to be interleaved, while continuing to follow Strict 2PL.)
 2. Informally explain how Strict 2PL guarantees serializability even in the presence of I
 and D locks. (Identify which pairs of actions conflict, in the sense that their relative
@@ -77,6 +114,27 @@ to Strict 2PL orders all conflicting pairs of actions to be the same as the orde
 serial schedule.)
 
 #### `Answer`
+
+1. Take the following two transactions as example:  
+T1: Increment A, Decrement B, Read C;  
+T2: Increment B, Decrement A, Read C  
+If using only strict 2PL, all actions are versions of blind writes, they have to obtain
+exclusive locks on objects. Following strict 2PL, T1 gets an exclusive lock on A,
+if T2 now gets an exclusive lock on B, there will be a deadlock. Even if T1 is fast
+enough to have grabbed an exclusive lock on B first, T2 will now be blocked until
+T1 finishes. This has little concurrency. If I and D locks are used, since I and
+D are compatible, T1 obtains an I-Lock on A, and a D-Lock on B; T2 can still
+obtain an I-Lock on B, a D-Lock on A; both transactions can be interleaved to
+allow maximum concurrency.
+2. The pairs of actions which conflicts are:  
+RW, WW, WR, IR, IW, DR, DW  
+We know that strict 2PL orders the first 3 conflicts pairs of actions to be the same
+as the order in some serial schedule. We can also show that even in the presence
+of I and D locks, strict 2PL also orders the latter 4 pairs of actions to be the
+same as the order in some serial schedule. Think of an I (or D)lock under these
+circumstances as an exclusive lock, since an I(D) lock is not compatible with S
+and X locks anyway (ie. can’t get a S or X lock if another transaction has an I or
+D lock). So serializability is guaranteed.
 
 ***
 
