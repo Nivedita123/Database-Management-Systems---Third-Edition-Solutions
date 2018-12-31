@@ -27,6 +27,30 @@ to the schema of the relation.
 The relation cardinality is the number of tuples in the relation.
 The relation degree is the number of fields (or columns) in the relation.
 
+A relation schema can be thought of as the basic information describing
+a table or relation. This includes a set of column names, the data types associated
+with each column, and the name associated with the entire table. For example, a
+relation schema for the relation called Students could be expressed using the following
+representation:   
+
+Students(sid: string, name: string, login: string,
+age: integer, gpa: real)   
+
+There are five fields or columns, with names and types as shown above.
+
+A relational database schema is a collection of relation schemas, describing one or more
+relations.
+
+Domain is synonymous with data type. Attributes can be thought of as columns in a
+table. Therefore, an attribute domain refers to the data type associated with a column.
+
+A relation instance is a set of tuples (also known as rows or records) that each conform
+to the schema of the relation.
+
+The relation cardinality is the number of tuples in the relation.
+
+The relation degree is the number of fields (or columns) in the relation.
+
 ***
 ### Exercise 3.2
 How many distinct tuples are in a relation instance with cardinality 22?
@@ -68,6 +92,7 @@ key, not something that only might be a key. The instance shown is just one poss
 “snapshot” of the relation. At other times, the same relation may have an instance (or
 snapshot) that contains a totally different set of tuples, and we cannot make predictions
 about those instances based only upon the instance that we are given.
+
 ***
 ### Exercise 3.6
 What is a foreign key constraint? Why are such constraints important? What is referential integrity?
@@ -90,6 +115,19 @@ courses, both the f id and the cid fields in the Teaches relation should have FK
 Finally, Meets In should place FKCs on both the cid and rno fields.
 It would probably be wise to enforce a few other constraints on this DBMS: the length
 of sid, cid, and f id could be standardized; checksums could be added to these identification numbers; limits could be placed on the size of the numbers entered into the
+credits, capacity, and salary fields; an enumerated type should be assigned to the grade
+field (preventing a student from receiving a grade of G, among other things); etc.
+
+There is no reason for a foreign key constraint (FKC) on the Students,
+Faculty, Courses, or Rooms relations. These are the most basic relations and must be
+free-standing. Special care must be given to entering data into these base relations.
+In the Enrolled relation, sid and cid should both have FKCs placed on them. (Real
+students must be enrolled in real courses.) Also, since real teachers must teach real
+courses, both the f id and the cid fields in the Teaches relation should have FKCs.
+Finally, Meets In should place FKCs on both the cid and rno fields.
+It would probably be wise to enforce a few other constraints on this DBMS: the length
+of sid, cid, and f id could be standardized; checksums could be added to these identification
+numbers; limits could be placed on the size of the numbers entered into the
 credits, capacity, and salary fields; an enumerated type should be assigned to the grade
 field (preventing a student from receiving a grade of G, among other things); etc.
 
@@ -116,10 +154,15 @@ Consider the SQL query whose answer is shown in Figure 3.6.
 2. If the clause WHERE S.gpa >= 2 is added to the original query, what is the set of tuples in the answer?
 
 ### `Answer`
-1. Only login is included in the answer:  
-  SELECT S.login FROM Students S WHERE S.age < 18
 
-2. The answer tuple for Madayan is omitted then
+1. Only login is included in the answer:
+
+SELECT S.login   
+FROM Students S   
+WHERE S.age < 18   
+
+2. The answer tuple for Madayan is omitted then.
+
 ***
 ### Exercise 3.10
 Explain why the addition of NOT NULL constraints to the SQL definition of the Manages relation (in Section 3.5.3) would not enforce the constraint that each department must have a manager. What, if anything, is achieved by requiring that the S8n field of Manages be non-null?
@@ -150,6 +193,25 @@ PRIMARY KEY (b1) )
 CREATE TABLE C ( b1 CHAR(10),   
 c2 CHAR(10),   
 PRIMARY KEY (c1) )
+
+The first SQL statement folds the relationship R into table A and thereby guarantees
+the participation constraint.
+
+The following SQL statements create the corresponding relations.   
+CREATE TABLE A ( a1 CHAR(10),   
+a2 CHAR(10),   
+b1 CHAR(10),   
+c1 CHAR(10),   
+PRIMARY KEY (a1),   
+UNIQUE (b1),   
+FOREIGN KEY (b1) REFERENCES B,   
+FOREIGN KEY (c1) REFERENCES C )   
+CREATE TABLE B ( b1 CHAR(10),   
+b2 CHAR(10),   
+PRIMARY KEY (b1) )   
+CREATE TABLE C ( b1 CHAR(10),   
+c2 CHAR(10),   
+PRIMARY KEY (c1) )   
 
 The first SQL statement folds the relationship R into table A and thereby guarantees
 the participation constraint.
@@ -223,6 +285,7 @@ FOREIGN KEY (prof ssn) REFERENCES Professors,
 FOREIGN KEY (pid) REFERENCES Projects )   
 Observe that we cannot enforce the participation constraint for Projects in the
 Work In table without check constraints or assertions in SQL.
+
 10. CREATE TABLE Supervises ( prof ssn CHAR(10),
 grad ssn CHAR(10),
 pid INTEGER,
@@ -230,8 +293,8 @@ PRIMARY KEY (prof ssn, grad ssn, pid),
 FOREIGN KEY (prof ssn) REFERENCES Professors,
 FOREIGN KEY (grad ssn) REFERENCES Graduates,
 FOREIGN KEY (pid) REFERENCES Projects )   
-   Note that we do not need an explicit table for the Work Proj relation since every
-time a Graduate works on a Project, he or she must have a Supervisor.
+
+Note that we do not need an explicit table for the Work Proj relation since every time a Graduate works on a Project, he or she must have a Supervisor.
 ***
 ### Exercise 3.14
 Consider the scenario from Exercise 2.4, where you designed am ER diagram for a company database. Write SQL statements to create the corresponding relations and capture as many of the constraints as possible. If you cannot capture some constraints, explain why.
@@ -245,6 +308,50 @@ the SQL statements and briefly explain why you could not express them.
 
 ### `Answer`
 The following SQL statements create the corresponding relations.
+1. CREATE TABLE Musicians ( ssn CHAR(10),
+name CHAR(30),
+PRIMARY KEY (ssn))
+2. CREATE TABLE Instruments ( instrId CHAR(10),
+dname CHAR(30),
+key CHAR(5),
+PRIMARY KEY (instrId))
+3. CREATE TABLE Plays ( ssn CHAR(10),
+instrId INTEGER,
+PRIMARY KEY (ssn, instrId),
+FOREIGN KEY (ssn) REFERENCES Musicians,
+FOREIGN KEY (instrId) REFERENCES Instruments )
+4. CREATE TABLE Songs Appears ( songId INTEGER,
+author CHAR(30),
+title CHAR(30),
+albumIdentifier INTEGER NOT NULL,
+PRIMARY KEY (songId),
+FOREIGN KEY (albumIdentifier)
+References Album Producer,
+5. CREATE TABLE Telephone Home ( phone CHAR(11),
+address CHAR(30),
+PRIMARY KEY (phone),
+FOREIGN KEY (address) REFERENCES Place,
+6. CREATE TABLE Lives ( ssn CHAR(10),
+phone CHAR(11),
+address CHAR(30),
+PRIMARY KEY (ssn, address),
+FOREIGN KEY (phone, address)
+References Telephone Home,
+FOREIGN KEY (ssn) REFERENCES Musicians )
+7. CREATE TABLE Place ( address CHAR(30) )
+8. CREATE TABLE Perform ( songId INTEGER,
+ssn CHAR(10),
+PRIMARY KEY (ssn, songId),
+FOREIGN KEY (songId) REFERENCES Songs,
+FOREIGN KEY (ssn) REFERENCES Musicians )
+9. CREATE TABLE Album Producer ( albumIdentifier INTEGER,
+ssn CHAR(10),
+copyrightDate DATE,
+speed INTEGER,
+title CHAR(30),
+PRIMARY KEY (albumIdentifier),
+FOREIGN KEY (ssn) REFERENCES Musicians )
+
 1. CREATE TABLE Musicians ( ssn CHAR(10),
 name CHAR(30),
 PRIMARY KEY (ssn))
@@ -344,6 +451,48 @@ PRIMARY KEY (name, pharm id),
 FOREIGN KEY (name) REFERENCES Pharmacy,
 FOREIGN KEY (pharm id) REFERENCES Pharm co)
 
+The statements to create tables corresponding to entity sets Doctor,
+Pharmacy, and Pharm co are straightforward and omitted. The other required tables
+can be created as follows:
+1. CREATE TABLE Pri Phy Patient ( ssn CHAR(11),
+name CHAR(20),
+age INTEGER,
+address CHAR(20),
+phy ssn CHAR(11),
+PRIMARY KEY (ssn),
+FOREIGN KEY (phy ssn) REFERENCES Doctor )
+2. CREATE TABLE Prescription ( ssn CHAR(11),
+phy ssn CHAR(11),
+date CHAR(11),
+quantity INTEGER,
+trade name CHAR(20),
+pharm id CHAR(11),
+PRIMARY KEY (ssn, phy ssn),
+FOREIGN KEY (ssn) REFERENCES Patient,
+FOREIGN KEY (phy ssn) REFERENCES Doctor,
+FOREIGN KEY (trade name, pharm id)
+References Make Drug)
+3. CREATE TABLE Make Drug (trade name CHAR(20),
+pharm id CHAR(11),
+PRIMARY KEY (trade name, pharm id),
+FOREIGN KEY (trade name) REFERENCES Drug,
+FOREIGN KEY (pharm id) REFERENCES Pharm co)
+4. CREATE TABLE Sell ( price INTEGER,
+name CHAR(10),
+trade name CHAR(10),
+PRIMARY KEY (name, trade name),
+FOREIGN KEY (name) REFERENCES Pharmacy,
+FOREIGN KEY (trade name) REFERENCES Drug)
+5. CREATE TABLE Contract ( name CHAR(20),
+pharm id CHAR(11),
+start date CHAR(11),
+end date CHAR(11),
+text CHAR(10000),
+supervisor CHAR(20),
+PRIMARY KEY (name, pharm id),
+FOREIGN KEY (name) REFERENCES Pharmacy,
+FOREIGN KEY (pharm id) REFERENCES Pharm co)
+
 ***
 ### Exercise 3.18
 Write SQL statements to create the corresponding relations to the ER diagram you designed for Exercise 2.8. If your translation cannot capture any constraints in the ER diagram, explain why.
@@ -388,6 +537,8 @@ AS SELECT E.eid, AVG (E.salary)
 FROM Emp E
 GROUP BY E.age
 
+
+
 ***
 ### Exercise 3.20
 Consider the following schema:  
@@ -402,5 +553,23 @@ The Catalog relation lists the prices charged for parts by Suppliers. Answer the
 4. Give an example of an insertable-into view that is not updatable.
 
 ### `Answer`
+
+1. The system will do the following:   
+SELECT S.name
+FROM ( SELECT E.ename AS name, E.age, E.salary
+FROM Emp E
+WHERE E.age > 50 ) AS S
+WHERE S.salary > 100000
+2. The following view on Emp can be updated automatically by updating Emp:   
+CREATE VIEW SeniorEmp (eid, name, age, salary)
+AS SELECT E.eid, E.ename, E.age, E.salary
+FROM Emp E
+WHERE E.age > 50
+3. The following view cannot be updated automatically because it is not clear which
+employee records will be affected by a given update:   
+CREATE VIEW AvgSalaryByAge (age, avgSalary)
+AS SELECT E.eid, AVG (E.salary)
+FROM Emp E
+GROUP BY E.age
 
 ***
